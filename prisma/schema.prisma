@@ -1,0 +1,74 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tournament {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  status      String
+  challenges  Challenge[]
+  teams       Team[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Challenge {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  rules       Json
+  type        String
+  tournament  Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String    @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Team {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  city        String
+  tournament  Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String    @db.ObjectId
+  participants Participant[]
+  coach       Coach     @relation(fields: [coachId], references: [id])
+  coachId     String    @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Participant {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  dateOfBirth DateTime
+  team        Team     @relation(fields: [teamId], references: [id])
+  teamId      String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Coach {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String   @unique
+  documentId  String   @unique
+  phone       String
+  teams       Team[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String @unique
+  password String
+  role     String
+}
